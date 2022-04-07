@@ -1,0 +1,11 @@
+﻿{
+	"name": "Squeeze Theorem",
+	"version_number": "1.0.0",
+	"website_url": "",
+	"description": "Adds a lunar item that can help with the 'dodge build', or just armor.",
+	"dependencies": [
+		"bbepis-BepInExPack-5.4.9",
+		"RiskofThunder-HookGenPatcher-1.2.1",
+		"tristanmcpherson-R2API-3.0.30"
+	]
+}
