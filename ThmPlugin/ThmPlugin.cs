@@ -3,6 +3,10 @@ using R2API;
 using R2API.Utils;
 using RoR2;
 using UnityEngine;
+using System.Security;
+using System.Security.Permissions;
+
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 
 
 namespace ThmPlugin
@@ -29,9 +33,15 @@ namespace ThmPlugin
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "nobleRadical";
         public const string PluginName = "SqueezeTheorem";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.1.0";
 
-		//We need our item definition to persist through our functions, and therefore make it a class field.
+
+        // per-stack multipler for health -> armor
+        private const float armorMultiplier = (float)0.1;
+        // Maximum multipler for health -> armor
+        private const double maxArmorMultipler = 1.0;
+
+        //We need our item definition to persist through our functions, and therefore make it a class field.
         private static ItemDef myItemDef;
         //for assets or some BS
         public static PluginInfo PInfo { get; private set; }
@@ -57,7 +67,8 @@ namespace ThmPlugin
             //The tier determines what rarity the item is:
             //Tier1=white, Tier2=green, Tier3=red, Lunar=Lunar, Boss=yellow,
             //and finally NoTier is generally used for helper items, like the tonic affliction
-            myItemDef.tier = ItemTier.Lunar;
+            myItemDef.deprecatedTier = ItemTier.Lunar;
+            myItemDef.tags = new ItemTag[1] { ItemTag.Utility };
 
             Assets.Init();
             //You can create your own icons and prefabs through assetbundles, but to keep this boilerplate brief, we'll be using question marks
@@ -98,7 +109,7 @@ namespace ThmPlugin
                     // Convert to armor
                     if (squeezeCount > 0)
                     {
-                        self.levelArmor += self.levelMaxHealth * (float)(0.2 * squeezeCount);
+                        self.levelArmor += self.levelMaxHealth * Mathf.Min((float)(armorMultiplier * squeezeCount), (float)maxArmorMultipler);
                         self.levelMaxHealth = 0;
                     }
                 }
@@ -119,7 +130,7 @@ namespace ThmPlugin
             LanguageAPI.Add("SQUEEZE_PICKUP", "Converts Level-up Health Bonuses to Armor.");
 
             //The Description is where you put the actual numbers and give an advanced description.
-            LanguageAPI.Add("SQUEEZE_DESC", "Health bonuses on leveling up are removed. Instead, 20% <style=cStack>(+20% per stack)</style> of bonus health is converted to Armor.");
+            LanguageAPI.Add("SQUEEZE_DESC", $"Health bonuses on leveling up are removed. Instead, {armorMultiplier * 100}% <style=cStack>(+{armorMultiplier * 100}% per stack)</style> of bonus health is converted to Armor.");
             
             //The Lore is, well, flavor. You can write pretty much whatever you want here.
             LanguageAPI.Add("SQUEEZE_LORE", @"<style=cMono>W H A T  I S  T H I S  Y O U  B R I N G  M E?</style>
